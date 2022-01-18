@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using InkyBot.Algorithms;
 using InkyBot.Models;
 using MarkovSharp.TokenisationStrategies;
 using Newtonsoft.Json;
@@ -72,7 +73,7 @@ namespace InkyBot.Commands
                 result = model.Walk(10).FirstOrDefault(x => 
                     !x.Contains("||", StringComparison.InvariantCultureIgnoreCase) && // Spoilers
                     !x.Contains("<:", StringComparison.InvariantCultureIgnoreCase) && // mentions
-                    !messages.Contains(x, StringComparer.InvariantCultureIgnoreCase) && // Dupe checking
+                    !messages.Any(y => y.DamerauLevenshteinDistanceTo(x) < 10) && // Dupe checking
                     !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && // Links
                     x.Length >= 25) ?? string.Empty;
 
