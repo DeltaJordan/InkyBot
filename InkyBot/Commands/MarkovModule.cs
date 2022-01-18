@@ -70,10 +70,10 @@ namespace InkyBot.Commands
                 model.EnsureUniqueWalk = true;
                 model.Learn(messages);
                 result = model.Walk(10).FirstOrDefault(x => 
-                    !x.Contains("||") &&
-                    !x.Contains("<:") && 
-                    !messages.Contains(x) && 
-                    !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && 
+                    !x.Contains("||", StringComparison.InvariantCultureIgnoreCase) && // Spoilers
+                    !x.Contains("<:", StringComparison.InvariantCultureIgnoreCase) && // mentions
+                    !messages.Contains(x, StringComparer.InvariantCultureIgnoreCase) && // Dupe checking
+                    !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && // Links
                     x.Length >= 25) ?? string.Empty;
 
                 result = Formatter.Sanitize(result);
