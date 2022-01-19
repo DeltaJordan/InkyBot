@@ -42,11 +42,11 @@ namespace InkyBot.Commands
         }
 
         [Command("usermarkov")]
-        public async Task UserMarkovAsync(CommandContext context, DiscordUser user)
+        public async Task UserMarkovAsync(CommandContext context, params DiscordUser[] user)
         {
             await context.Channel.TriggerTypingAsync().SafeAsync();
 
-            string result = await GetMarkovResultAsync(context, user.Id).SafeAsync();
+            string result = await GetMarkovResultAsync(context, user.Select(x => x.Id).ToArray()).SafeAsync();
 
             await context.RespondAsync(result).SafeAsync();
         }
@@ -61,18 +61,21 @@ namespace InkyBot.Commands
             await context.RespondAsync(result).SafeAsync();
         }
 
-        private async Task<string> GetMarkovResultAsync(CommandContext context, ulong userId)
+        private async Task<string> GetMarkovResultAsync(CommandContext context, params ulong[] userIds)
         {
 
-            string userFolder = Path.Combine(Globals.AppPath, "Message Log", userId.ToString());
+            IEnumerable<string> userFolders = userIds.Select(x => Path.Combine(Globals.AppPath, "Message Log", x.ToString()));
 
             List<string> messages = new List<string>();
 
-            foreach (string file in Directory.EnumerateFiles(userFolder))
+            foreach (string userFolder in userFolders)
             {
-                string messageJson = await File.ReadAllTextAsync(file).SafeAsync();
-                DiscordMessageModel messageModel = JsonConvert.DeserializeObject<DiscordMessageModel>(messageJson);
-                messages.Add(messageModel.Message);
+                foreach (string file in Directory.EnumerateFiles(userFolder))
+                {
+                    string messageJson = await File.ReadAllTextAsync(file).SafeAsync();
+                    DiscordMessageModel messageModel = JsonConvert.DeserializeObject<DiscordMessageModel>(messageJson);
+                    messages.Add(messageModel.Message);
+                }
             }
 
             string result = string.Empty;
