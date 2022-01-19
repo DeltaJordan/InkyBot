@@ -42,10 +42,29 @@ namespace InkyBot.Commands
         }
 
         [Command("usermarkov")]
+        public async Task UserMarkovAsync(CommandContext context, DiscordUser user)
+        {
+            await context.Channel.TriggerTypingAsync().SafeAsync();
+
+            string result = await GetMarkovResultAsync(context, user.Id).SafeAsync();
+
+            await context.RespondAsync(result).SafeAsync();
+        }
+
+        [Command("usermarkov")]
         public async Task UserMarkovAsync(CommandContext context)
         {
             await context.Channel.TriggerTypingAsync().SafeAsync();
-            string userFolder = Path.Combine(Globals.AppPath, "Message Log", context.Member.Id.ToString());
+
+            string result = await GetMarkovResultAsync(context, context.User.Id).SafeAsync();
+
+            await context.RespondAsync(result).SafeAsync();
+        }
+
+        private async Task<string> GetMarkovResultAsync(CommandContext context, ulong userId)
+        {
+
+            string userFolder = Path.Combine(Globals.AppPath, "Message Log", userId.ToString());
 
             List<string> messages = new List<string>();
 
@@ -65,14 +84,15 @@ namespace InkyBot.Commands
                 if (retries > 100)
                 {
                     await context.RespondAsync("Failed to create a unique message within 100 tries.").SafeAsync();
+                    return null;
                 }
 
                 StringMarkov model = new(2);
                 model.EnsureUniqueWalk = true;
                 model.Learn(messages);
-                result = model.Walk(10).FirstOrDefault(x => 
+                result = model.Walk(10).FirstOrDefault(x =>
                     !x.Contains("||", StringComparison.InvariantCultureIgnoreCase) && // Spoilers
-                    !x.Contains("<:", StringComparison.InvariantCultureIgnoreCase) && // mentions
+                    !x.Contains("<", StringComparison.InvariantCultureIgnoreCase) && // mentions, emotes, etc
                     !messages.Any(y => y.DamerauLevenshteinDistanceTo(x) < 10) && // Dupe checking
                     !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && // Links
                     x.Length >= 25) ?? string.Empty;
@@ -80,7 +100,7 @@ namespace InkyBot.Commands
                 result = Formatter.Sanitize(result);
             }
 
-            await context.RespondAsync(result).SafeAsync();
+            return result;
         }
 
         private async Task CacheRecursiveAsync(DiscordChannel channel, DiscordMessage oldestMessage)
