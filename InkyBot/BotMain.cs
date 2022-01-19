@@ -140,6 +140,13 @@ namespace InkyBot
                 };
 
                 await File.WriteAllTextAsync(Path.Combine(userFolder, e.Message.Id + ".json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
+
+                if (e.Channel.Id == 422155933335158784) // #nsfw
+                {
+                    string channelFolder = Path.Combine(Globals.AppPath, "Message Log", "Channels", e.Channel.Id.ToString());
+                    Directory.CreateDirectory(channelFolder);
+                    await File.WriteAllTextAsync(Path.Combine(channelFolder, e.Message.Id + ".json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
+                }
             }
         }
     }

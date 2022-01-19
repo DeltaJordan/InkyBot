@@ -14,6 +14,8 @@ namespace InkyBot.Commands
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private static bool loadingNsfwMessages;
+
         [Command("cacheme")]
         public async Task CacheMeAsync(CommandContext context)
         {
@@ -39,6 +41,67 @@ namespace InkyBot.Commands
         {
             Settings.Instance.MarkovChannelBlacklist = new List<ulong> { channel.Id }.Concat(Settings.Instance.MarkovChannelBlacklist).ToArray();
             Settings.Instance.Save();
+        }
+
+        [Command("nsfwmarkov")]
+        public async Task NsfwMarkov(CommandContext context)
+        {
+            if (loadingNsfwMessages || context.Channel.Id != 422155933335158784) // #nsfw
+            {
+                return;
+            }
+
+            string channelFolder = Path.Combine(Globals.AppPath, "Message Log", "Channels", context.Channel.Id.ToString());
+            Directory.CreateDirectory(channelFolder);
+
+            if (Directory.GetFiles(channelFolder).Length == 0)
+            {
+                loadingNsfwMessages = true;
+
+                DiscordMessage statusMessage =
+                await context.RespondAsync("Initializing nsfw channel markov model. This will take a little while.").SafeAsync();
+
+                await CacheRecursiveAsync(context.Channel, null).SafeAsync();
+
+                await statusMessage.ModifyAsync("Finished!").SafeAsync();
+
+                loadingNsfwMessages = false;
+            }
+
+            List<string> messages = new List<string>();
+            foreach (string file in Directory.EnumerateFiles(channelFolder))
+            {
+                string messageJson = await File.ReadAllTextAsync(file).SafeAsync();
+                DiscordMessageModel messageModel = JsonConvert.DeserializeObject<DiscordMessageModel>(messageJson);
+                messages.Add(messageModel.Message);
+            }
+
+            string result = string.Empty;
+            int retries = 0;
+
+            while (result.Length < 25)
+            {
+                retries++;
+                if (retries > 100)
+                {
+                    await context.RespondAsync("Failed to create a unique message within 100 tries.").SafeAsync();
+                    return;
+                }
+
+                StringMarkov model = new(2);
+                model.EnsureUniqueWalk = true;
+                model.Learn(messages);
+                result = model.Walk(10).FirstOrDefault(x =>
+                    !x.Contains("||", StringComparison.InvariantCultureIgnoreCase) && // Spoilers
+                    !x.Contains("<", StringComparison.InvariantCultureIgnoreCase) && // mentions, emotes, etc
+                    !messages.Any(y => y.DamerauLevenshteinDistanceTo(x) < 10) && // Dupe checking
+                    !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && // Links
+                    x.Length >= 25) ?? string.Empty;
+
+                result = Formatter.Sanitize(result);
+            }
+
+            await context.RespondAsync(result).SafeAsync();
         }
 
         [Command("usermarkov")]
