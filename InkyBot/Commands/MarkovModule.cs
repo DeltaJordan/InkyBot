@@ -54,7 +54,7 @@ namespace InkyBot.Commands
             string channelFolder = Path.Combine(Globals.AppPath, "Message Log", "Channels", context.Channel.Id.ToString());
             Directory.CreateDirectory(channelFolder);
 
-            if (Directory.GetFiles(channelFolder).Length == 0)
+            if (Directory.GetFiles(channelFolder).Length < 10)
             {
                 loadingNsfwMessages = true;
 
