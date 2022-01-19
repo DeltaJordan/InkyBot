@@ -59,9 +59,10 @@ namespace InkyBot.Commands
                 loadingNsfwMessages = true;
 
                 DiscordMessage statusMessage =
-                await context.RespondAsync("Initializing nsfw channel markov model. This will take a little while.").SafeAsync();
+                    await context.RespondAsync("Initializing nsfw channel markov model. This will take a little while.").SafeAsync();
 
-                await CacheRecursiveAsync(context.Channel, null).SafeAsync();
+
+                await CacheChannelMessagesAsync(context.Channel, null, channelFolder).SafeAsync();
 
                 await statusMessage.ModifyAsync("Finished!").SafeAsync();
 
@@ -172,6 +173,52 @@ namespace InkyBot.Commands
             }
 
             return result;
+        }
+
+        private async Task CacheChannelMessagesAsync(DiscordChannel channel, DiscordMessage oldestMessage, string channelFolder)
+        {
+            try
+            {
+                IReadOnlyList<DiscordMessage> channelMessages;
+
+                if (oldestMessage != null)
+                    channelMessages = await channel.GetMessagesBeforeAsync(oldestMessage.Id).SafeAsync();
+                else
+                    channelMessages = await channel.GetMessagesAsync().SafeAsync();
+
+                if (channelMessages.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (var message in channelMessages)
+                {
+                    if (message.MessageType != MessageType.Default &&
+                        message.MessageType != MessageType.Reply)
+                    {
+                        return;
+                    }
+
+                    DiscordMessageModel messageModel = new()
+                    {
+                        Id = message.Id,
+                        Message = message.Content,
+                        AuthorId = message.Author.Id
+                    };
+
+                    await File.WriteAllTextAsync(Path.Combine(channelFolder, message.Id + ".json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
+                }
+
+                DiscordMessage referenceMessage = channelMessages.OrderBy(x => x.Timestamp).FirstOrDefault();
+                if (referenceMessage != null)
+                {
+                    await CacheChannelMessagesAsync(channel, referenceMessage, channelFolder).SafeAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex, $"Failed to get channel messages for channel {channel.Name}.");
+            }
         }
 
         private async Task CacheRecursiveAsync(DiscordChannel channel, DiscordMessage oldestMessage)
