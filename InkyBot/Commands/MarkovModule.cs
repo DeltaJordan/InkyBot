@@ -44,6 +44,12 @@ namespace InkyBot.Commands
         [Command("usermarkov")]
         public async Task UserMarkovAsync(CommandContext context, params DiscordUser[] user)
         {
+            if (user.Length == 0)
+            {
+                await UserMarkovAsync(context).SafeAsync();
+                return;
+            }
+
             await context.Channel.TriggerTypingAsync().SafeAsync();
 
             string result = await GetMarkovResultAsync(context, user.Select(x => x.Id).ToArray()).SafeAsync();
@@ -51,8 +57,7 @@ namespace InkyBot.Commands
             await context.RespondAsync(result).SafeAsync();
         }
 
-        [Command("usermarkov")]
-        public async Task UserMarkovAsync(CommandContext context)
+        private async Task UserMarkovAsync(CommandContext context)
         {
             await context.Channel.TriggerTypingAsync().SafeAsync();
 
