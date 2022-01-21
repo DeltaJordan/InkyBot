@@ -12,7 +12,7 @@ namespace InkyBot.Models
     {
         DiscordMessageContext IDesignTimeDbContextFactory<DiscordMessageContext>.CreateDbContext(string[] args)
         {
-            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            string connectionString = Settings.Instance.ConnectionString;
 
             var optionsBuilder = new DbContextOptionsBuilder<DiscordMessageContext>();
             optionsBuilder.UseNpgsql(connectionString);

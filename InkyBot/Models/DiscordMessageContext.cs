@@ -17,7 +17,7 @@ namespace InkyBot.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql();
+            optionsBuilder.UseNpgsql(Settings.Instance.ConnectionString);
         }
     }
 }
