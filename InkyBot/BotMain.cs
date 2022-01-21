@@ -128,10 +128,10 @@ namespace InkyBot
                 {
                     Parameters =
                     {
-                        new() { Value = e.Message.Id },
+                        new() { Value = (decimal) e.Message.Id },
                         new() { Value = e.Message.Content },
-                        new() { Value = e.Author.Id },
-                        new() { Value = e.Channel.Id }
+                        new() { Value = (decimal) e.Author.Id },
+                        new() { Value = (decimal) e.Channel.Id }
                     }
                 };
 
