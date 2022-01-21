@@ -124,7 +124,7 @@ namespace InkyBot
                 await using var conn = new NpgsqlConnection(Settings.Instance.ConnectionString);
                 await conn.OpenAsync().SafeAsync();
 
-                await using var cmd = new NpgsqlCommand("INSERT INTO 'MessagesItems' (id, message, authorid, channelid) VALUES ($1, $2, $3, $4)", conn)
+                await using var cmd = new NpgsqlCommand("INSERT INTO 'MessageItems' (id, message, authorid, channelid) VALUES ($1, $2, $3, $4)", conn)
                 {
                     Parameters =
                     {
