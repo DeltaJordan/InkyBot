@@ -9,11 +9,10 @@ namespace InkyBot.Models
 {
     public class DiscordMessageContext : DbContext
     {
-        public DbSet<DiscordMessageItem> MessageItems { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DiscordMessageContext(DbContextOptions<DiscordMessageContext> options)
         {
-            optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
         }
+
+        public DbSet<DiscordMessageItem> MessageItems { get; set; }
     }
 }
