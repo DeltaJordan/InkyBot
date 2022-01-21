@@ -13,7 +13,6 @@ namespace InkyBot.Commands
     public sealed class MarkovModule : BaseCommandModule
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static bool loadingNsfwMessages;
 
         private readonly DiscordMessageContext databaseContext;
 
@@ -41,14 +40,15 @@ namespace InkyBot.Commands
                 await CacheRecursiveAsync(channel, null).SafeAsync();
 
                 await statusMessage.ModifyAsync($"Initializing your markov model. This will take a while. {++completed} out of {markovChannels.Length} models completed.").SafeAsync();
-            }
-            try
-            {
-                await databaseContext.SaveChangesAsync().SafeAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.Fatal(ex);
+
+                try
+                {
+                    await databaseContext.SaveChangesAsync().SafeAsync();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal(ex);
+                }
             }
 
             await statusMessage.ModifyAsync("Finished!").SafeAsync();
@@ -66,7 +66,7 @@ namespace InkyBot.Commands
         [Command("nsfwmarkov")]
         public async Task NsfwMarkovAsync(CommandContext context)
         {
-            if (loadingNsfwMessages || context.Channel.Id != 422155933335158784) // #nsfw
+            if (context.Channel.Id != 422155933335158784) // #nsfw
             {
                 return;
             }
@@ -180,7 +180,8 @@ namespace InkyBot.Commands
                 foreach (var message in channelMessages)
                 {
                     if (message.MessageType != MessageType.Default &&
-                        message.MessageType != MessageType.Reply)
+                        message.MessageType != MessageType.Reply ||
+                        databaseContext.MessageItems.Any(x => x.Id == message.Id))
                     {
                         return;
                     }
