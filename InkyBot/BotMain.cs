@@ -5,6 +5,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using InkyBot.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
@@ -73,6 +75,9 @@ namespace InkyBot
 
             Console.WriteLine(Settings.Instance.Prefix);
 
+            ServiceCollection services = new();
+            services.AddDbContext<DiscordMessageContext>(options => options.UseNpgsql(Settings.Instance.ConnectionString));
+
             commands = Client.UseCommandsNext(new CommandsNextConfiguration
             {
 #if DEBUG
@@ -80,7 +85,8 @@ namespace InkyBot
 #else
                 StringPrefixes = new string[] { Settings.Instance.Prefix },
 #endif
-                CaseSensitive = false
+                CaseSensitive = false,
+                Services = services.BuildServiceProvider()
             });
 
             commands.RegisterCommands(Assembly.GetExecutingAssembly());
@@ -108,7 +114,7 @@ namespace InkyBot
                 string userFolder = Path.Combine(Globals.AppPath, "Message Log", e.Author.Id.ToString());
                 Directory.CreateDirectory(userFolder);
 
-                DiscordMessageModel messageModel = new()
+                DiscordMessageItem messageModel = new()
                 {
                     Id = e.Message.Id,
                     Message = e.Message.Content,
@@ -132,7 +138,7 @@ namespace InkyBot
                 string userFolder = Path.Combine(Globals.AppPath, "Message Log", e.Author.Id.ToString());
                 Directory.CreateDirectory(userFolder);
 
-                DiscordMessageModel messageModel = new()
+                DiscordMessageItem messageModel = new()
                 {
                     Id = e.Message.Id,
                     Message = e.Message.Content,

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InkyBot.Models
 {
-    public class DiscordMessageModel
+    public class DiscordMessageItem
     {
         [JsonProperty("_id")]
         public ulong Id { get; set; }
@@ -15,5 +15,7 @@ namespace InkyBot.Models
         public string Message { get; set; }
         [JsonProperty("author_id")]
         public ulong AuthorId { get; set; }
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
     }
 }

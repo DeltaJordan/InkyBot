@@ -12,12 +12,14 @@ namespace InkyBot
         public readonly string DiscordSecret;
         //config members
         public readonly string Prefix;
+        public readonly string ConnectionString;
         
         public ulong[] MarkovChannelBlacklist { get; set; }
 
-        private Settings(string discordSecret, ConfigFile cf)
+        private Settings(string discordSecret, string connectionString, ConfigFile cf)
         {
             this.DiscordSecret = discordSecret;
+            this.ConnectionString = connectionString;
             this.Prefix = cf.Prefix;
             this.MarkovChannelBlacklist = cf.MarkovChannelBlacklist;
         }
@@ -51,6 +53,7 @@ namespace InkyBot
         private static Settings InitSettings()
         {
             string discordSecret = Environment.GetEnvironmentVariable("DISCORD_SECRET");
+            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
             if (string.IsNullOrWhiteSpace(discordSecret))
             {
@@ -60,7 +63,7 @@ namespace InkyBot
             string configJson = File.ReadAllText(Path.Combine(Globals.AppPath, "config.json"));
             ConfigFile config = JsonConvert.DeserializeObject<ConfigFile>(configJson);
 
-            return new Settings(discordSecret, config);
+            return new Settings(discordSecret, connectionString, config);
         }
     }
 }
