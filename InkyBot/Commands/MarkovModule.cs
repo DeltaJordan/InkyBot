@@ -68,7 +68,9 @@ namespace InkyBot.Commands
         {
             var discordMessageItems = databaseContext.MessageItems.Where(x => !Settings.Instance.MarkovChannelBlacklist.Contains(x.Id));
 
-            string result = GetMarkovFromLines(discordMessageItems.Select(x => x.Message));
+            List<string> messages = discordMessageItems.Select(x => x.Message).ToList();
+
+            string result = GetMarkovFromLines(messages);
 
             if (string.IsNullOrEmpty(result))
             {
@@ -84,7 +86,9 @@ namespace InkyBot.Commands
         {
             var discordMessageItems = databaseContext.MessageItems.Where(x => x.ChannelId == channel.Id);
 
-            string result = GetMarkovFromLines(discordMessageItems.Select(x => x.Message));
+            List<string> messages = discordMessageItems.Select(x => x.Message).ToList();
+
+            string result = GetMarkovFromLines(messages);
 
             if (string.IsNullOrEmpty(result))
             {
