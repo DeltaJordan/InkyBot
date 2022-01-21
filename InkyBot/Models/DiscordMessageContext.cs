@@ -14,5 +14,10 @@ namespace InkyBot.Models
         }
 
         public DbSet<DiscordMessageItem> MessageItems { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseNpgsql();
+        }
     }
 }
