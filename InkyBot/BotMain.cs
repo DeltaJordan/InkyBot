@@ -70,7 +70,7 @@ namespace InkyBot
             {
                 Token = Settings.Instance.DiscordSecret,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Trace
+                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Information
             });
 
             Console.WriteLine(Settings.Instance.Prefix);
