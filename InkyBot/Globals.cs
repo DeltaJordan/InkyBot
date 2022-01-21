@@ -22,7 +22,7 @@ namespace InkyBot
         /// <summary>
         /// Returns the root directory of the application.
         /// </summary>
-        public static readonly string AppPath = Directory.GetParent(new Uri(Assembly.GetEntryAssembly()?.Location).LocalPath).FullName;
+        public static readonly string AppPath = AppDomain.CurrentDomain.BaseDirectory;
 
         /// <summary>
         /// My implementation of a static random; as close to fully random as possible.
