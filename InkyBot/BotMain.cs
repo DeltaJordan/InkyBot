@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using Npgsql;
 using System.Reflection;
 
 namespace InkyBot
@@ -106,23 +107,7 @@ namespace InkyBot
         {
             if (e.Guild.Id == 254091452559130626)
             {
-                if (e.Message.MessageType != MessageType.Default &&
-                    e.Message.MessageType != MessageType.Reply)
-                {
-                    return;
-                }
-
-                string userFolder = Path.Combine(Globals.AppPath, "Message Log", e.Author.Id.ToString());
-                Directory.CreateDirectory(userFolder);
-
-                DiscordMessageItem messageModel = new()
-                {
-                    Id = e.Message.Id,
-                    Message = e.Message.Content,
-                    AuthorId = e.Author.Id
-                };
-
-                await File.WriteAllTextAsync(Path.Combine(userFolder, e.Message.Id + "_edited.json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
+                // TODO: Edited messages
             }
         }
 
@@ -136,24 +121,21 @@ namespace InkyBot
                     return;
                 }
 
-                string userFolder = Path.Combine(Globals.AppPath, "Message Log", e.Author.Id.ToString());
-                Directory.CreateDirectory(userFolder);
+                await using var conn = new NpgsqlConnection(Settings.Instance.ConnectionString);
+                await conn.OpenAsync().SafeAsync();
 
-                DiscordMessageItem messageModel = new()
+                await using var cmd = new NpgsqlCommand("INSERT INTO \"MessagesItems\" (id, message, authorid, channelid) VALUES ($1, $2, $3, $4)", conn)
                 {
-                    Id = e.Message.Id,
-                    Message = e.Message.Content,
-                    AuthorId = e.Author.Id
+                    Parameters =
+                    {
+                        new() { Value = e.Message.Id },
+                        new() { Value = e.Message.Content },
+                        new() { Value = e.Author.Id },
+                        new() { Value = e.Channel.Id }
+                    }
                 };
 
-                await File.WriteAllTextAsync(Path.Combine(userFolder, e.Message.Id + ".json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
-
-                if (e.Channel.Id == 422155933335158784) // #nsfw
-                {
-                    string channelFolder = Path.Combine(Globals.AppPath, "Message Log", "Channels", e.Channel.Id.ToString());
-                    Directory.CreateDirectory(channelFolder);
-                    await File.WriteAllTextAsync(Path.Combine(channelFolder, e.Message.Id + ".json"), JsonConvert.SerializeObject(messageModel)).SafeAsync();
-                }
+                await cmd.ExecuteNonQueryAsync().SafeAsync();
             }
         }
     }

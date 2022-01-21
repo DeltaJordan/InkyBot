@@ -125,7 +125,8 @@ namespace InkyBot.Commands
 
         private string GetUserMarkovResult(CommandContext context, params ulong[] userIds)
         {
-            IQueryable<DiscordMessageItem> discordMessageItems = databaseContext.MessageItems.Where(x => userIds.Contains(x.AuthorId));
+            IQueryable<DiscordMessageItem> discordMessageItems = databaseContext.MessageItems
+                .Where(x => !Settings.Instance.MarkovChannelBlacklist.Contains(x.ChannelId) && userIds.Contains(x.AuthorId));
 
             List<string> messages = discordMessageItems.Select(x => x.Message).ToList();
 
