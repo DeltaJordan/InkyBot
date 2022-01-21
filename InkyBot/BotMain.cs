@@ -53,14 +53,15 @@ namespace InkyBot
             FileTarget logfile = new FileTarget("logfile")
             {
                 FileName = Path.Combine(Globals.AppPath, "Logs", "latest.log"),
-                Layout = "[${time}] [${level:uppercase=true}] [${logger}] ${message}"
+                Layout = "[${time}] [${level:uppercase=true}] [${logger}] ${message}${when:when=length('${exception}')>0:Inner=\n}${exception:format=tostring}"
             };
             config.AddRule(LogLevel.Trace, LogLevel.Fatal, logfile);
 
 
             ColoredConsoleTarget coloredConsoleTarget = new ColoredConsoleTarget
             {
-                UseDefaultRowHighlightingRules = true
+                UseDefaultRowHighlightingRules = true,
+                Layout = "[${time}] [${level:uppercase=true}] [${logger}] ${message}${when:when=length('${exception}')>0:Inner=\n}${exception:format=tostring}"
             };
             config.AddRule(LogLevel.Info, LogLevel.Fatal, coloredConsoleTarget);
             LogManager.Configuration = config;
