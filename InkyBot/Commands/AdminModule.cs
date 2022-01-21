@@ -32,9 +32,7 @@ namespace InkyBot.Commands
                                     typeof(Regex).GetTypeInfo().Assembly, typeof(Task).GetTypeInfo().Assembly, typeof(CommandContext).GetTypeInfo().Assembly,
                                     typeof(DiscordMessage).GetTypeInfo().Assembly, typeof(Settings).GetTypeInfo().Assembly)
                     .WithImports("System", "System.Collections.Generic", "System.Linq", "System.Reflection", "System.Text",
-                                 "System.Text.RegularExpressions", "System.Threading.Tasks", "DSharpPlus.CommandsNext", "DSharpPlus", "SquidDraftLeague.Bot",
-                                 "SquidDraftLeague.Bot.Commands", "SquidDraftLeague.Settings", "SquidDraftLeague.Draft", "SquidDraftLeague.MySQL",
-                                 "SquidDraftLeague.Bot.Commands.Preconditions"), typeof(GlobalEvalContext))
+                                 "System.Text.RegularExpressions", "System.Threading.Tasks", "DSharpPlus.CommandsNext", "DSharpPlus"), typeof(GlobalEvalContext))
                     .CreateDelegate();
             }
             catch (Exception e)
