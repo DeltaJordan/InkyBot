@@ -63,6 +63,38 @@ namespace InkyBot.Commands
             await context.RespondAsync($"Added channel {channel.Mention} to blacklist successfully!").SafeAsync();
         }
 
+        [Command("servermarkov")]
+        public async Task ServerMarkovAsync(CommandContext context)
+        {
+            var discordMessageItems = databaseContext.MessageItems.Where(x => !Settings.Instance.MarkovChannelBlacklist.Contains(x.Id));
+
+            string result = GetMarkovFromLines(discordMessageItems.Select(x => x.Message));
+
+            if (string.IsNullOrEmpty(result))
+            {
+                await context.RespondAsync("Failed to generate unique markov in 100 tries.").SafeAsync();
+                return;
+            }
+
+            await context.RespondAsync(result).SafeAsync();
+        }
+
+        [Command("channelmarkov")]
+        public async Task ChannelMarkovAsync(CommandContext context, DiscordChannel channel)
+        {
+            var discordMessageItems = databaseContext.MessageItems.Where(x => x.ChannelId == channel.Id);
+
+            string result = GetMarkovFromLines(discordMessageItems.Select(x => x.Message));
+
+            if (string.IsNullOrEmpty(result))
+            {
+                await context.RespondAsync("Failed to generate unique markov in 100 tries.").SafeAsync();
+                return;
+            }
+
+            await context.RespondAsync(result).SafeAsync();
+        }
+
         [Command("nsfwmarkov")]
         public async Task NsfwMarkovAsync(CommandContext context)
         {
