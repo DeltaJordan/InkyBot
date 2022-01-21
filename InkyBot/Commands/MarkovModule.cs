@@ -182,7 +182,7 @@ namespace InkyBot.Commands
                 {
                     if (message.MessageType != MessageType.Default &&
                         message.MessageType != MessageType.Reply ||
-                        databaseContext.MessageItems.Any(x => x.Id == message.Id))
+                        databaseContext.MessageItems.Find(message.Id) != null)
                     {
                         return;
                     }
