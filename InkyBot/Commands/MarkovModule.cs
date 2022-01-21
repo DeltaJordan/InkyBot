@@ -23,9 +23,13 @@ namespace InkyBot.Commands
         }
 
         [Command("cacheme"), RequireOwner]
-        public async Task CacheMeAsync(CommandContext context)
+        public async Task CacheMeAsync(CommandContext context, DiscordChannel reqChannel = null)
         {
-            DiscordChannel[] markovChannels = context.Guild.Channels.Values.Where(x => x.Type == ChannelType.Text).ToArray();
+            DiscordChannel[] markovChannels;
+            if (reqChannel == null)
+                markovChannels = context.Guild.Channels.Values.Where(x => x.Type == ChannelType.Text).ToArray();
+            else
+                markovChannels = new DiscordChannel[] { reqChannel };
 
             DiscordMessage statusMessage = 
                 await context.RespondAsync($"Initializing your markov model. This will take a while. 0 out of {markovChannels.Length} models completed.").SafeAsync();
@@ -38,8 +42,15 @@ namespace InkyBot.Commands
 
                 await statusMessage.ModifyAsync($"Initializing your markov model. This will take a while. {++completed} out of {markovChannels.Length} models completed.").SafeAsync();
             }
+            try
+            {
+                await databaseContext.SaveChangesAsync().SafeAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex);
+            }
 
-            await databaseContext.SaveChangesAsync().SafeAsync();
             await statusMessage.ModifyAsync("Finished!").SafeAsync();
         }
 
