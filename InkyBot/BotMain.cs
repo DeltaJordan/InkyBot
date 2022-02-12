@@ -1,5 +1,6 @@
 ﻿global using SDL.Util;
-
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
@@ -12,7 +13,6 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using Npgsql;
-using System.Reflection;
 
 namespace InkyBot
 {
@@ -136,6 +136,56 @@ namespace InkyBot
                 };
 
                 await cmd.ExecuteNonQueryAsync().SafeAsync();
+
+                Regex regex = new(@"(\s|^)vore(\s|$)", RegexOptions.IgnoreCase);
+                Match match = regex.Match(e.Message.Content);
+                if (match.Success)
+                {
+                    string lastMentionedFile = Path.Combine(Globals.AppPath, "vore.dat");
+                    if (File.Exists(lastMentionedFile))
+                    {
+                        DateTime lastMentioned = JsonConvert.DeserializeObject<DateTime>(await File.ReadAllTextAsync(lastMentionedFile).SafeAsync());
+                        TimeSpan timeDifference = DateTime.Now - lastMentioned;
+
+                        string unitsLabel;
+                        if (timeDifference.TotalDays >= 365)
+                        {
+                            unitsLabel = "Years";
+                        }
+                        else if (timeDifference.TotalDays >= 30)
+                        {
+                            unitsLabel = "Months";
+                        }
+                        else if (timeDifference.Days > 0)
+                        {
+                            unitsLabel = "Days";
+                        }
+                        else if (timeDifference.Hours > 0)
+                        {
+                            unitsLabel = "Hours";
+                        }
+                        else if (timeDifference.Minutes > 0)
+                        {
+                            unitsLabel = "Minutes";
+                        }
+                        else if (timeDifference.Seconds > 0)
+                        {
+                            unitsLabel = "Seconds";
+                        }
+                        else
+                        {
+                            unitsLabel = "Milliseconds";
+                        }
+
+                        await e.Message.RespondAsync("0 " + unitsLabel).SafeAsync();
+                    }
+                    else
+                    {
+                        await e.Message.RespondAsync("**Day 0**").SafeAsync();
+                    }
+
+                    await File.WriteAllTextAsync(lastMentionedFile, JsonConvert.SerializeObject(DateTime.Now)).SafeAsync();
+                }
             }
         }
     }
