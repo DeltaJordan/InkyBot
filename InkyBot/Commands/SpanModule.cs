@@ -45,7 +45,7 @@ public class SpanModule : BaseCommandModule
                 responseMessage = timeDifference.Milliseconds + " milliseconds of workplace safety.";
             }
 
-            await context.RespondAsync(responseMessage);
+            await context.RespondAsync(responseMessage).SafeAsync();
         }
         else
         {
