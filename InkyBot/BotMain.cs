@@ -137,7 +137,7 @@ namespace InkyBot
 
                 await cmd.ExecuteNonQueryAsync().SafeAsync();
 
-                Regex regex = new(@"(\s|^|/|\\)vore(\.|\?|\!|\s|$)", RegexOptions.IgnoreCase);
+                Regex regex = new(@"(^|[^a-z])vore([^a-z]|$)", RegexOptions.IgnoreCase);
                 Match match = regex.Match(e.Message.Content);
                 if (match.Success)
                 {
