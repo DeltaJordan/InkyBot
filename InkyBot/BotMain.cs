@@ -120,7 +120,7 @@ namespace InkyBot
                     return;
                 }
 #endif
-                if (Gibberish.Classify(e.Message.Content) > 80)
+                if (Gibberish.Classify(e.Message.Content) > 78)
                 {
                     await e.Message.RespondAsync("y").SafeAsync();
                 }
