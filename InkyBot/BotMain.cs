@@ -107,6 +107,8 @@ namespace InkyBot
 
         private static async Task Client_HandleKeySmashAsync(DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs e)
         {
+            return;
+
             if (e.Guild.Id == 254091452559130626)
             {
                 if (e.Message.Content.Length < 10)
@@ -120,7 +122,11 @@ namespace InkyBot
                     return;
                 }
 #endif
-                if (Gibberish.Classify(e.Message.Content) > 78)
+                double probability = Gibberish.Classify(e.Message.Content);
+
+                Console.WriteLine($"{probability:F}");
+
+                if (probability > 78)
                 {
                     await e.Message.RespondAsync("y").SafeAsync();
                 }
