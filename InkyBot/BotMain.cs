@@ -1,6 +1,4 @@
 ﻿global using SDL.Util;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
@@ -9,10 +7,13 @@ using InkyBot.Algorithms.Gibberish;
 using InkyBot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 using Npgsql;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace InkyBot
 {
