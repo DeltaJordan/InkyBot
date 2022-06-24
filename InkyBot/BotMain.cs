@@ -115,7 +115,7 @@ namespace InkyBot
                     return;
                 }
 #endif
-                if (Gibberish.Classify(e.Message.Content) < 0.25)
+                if (Gibberish.Classify(e.Message.Content) < 0.55)
                 {
                     await e.Message.RespondAsync("Yup.").SafeAsync();
                 }
