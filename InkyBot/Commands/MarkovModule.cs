@@ -187,7 +187,7 @@ namespace InkyBot.Commands
                 model.Learn(lines);
                 result = model.Walk(10).FirstOrDefault(x =>
                     !x.Contains("||", StringComparison.InvariantCultureIgnoreCase) && // Spoilers
-                    !x.Contains("<", StringComparison.InvariantCultureIgnoreCase) && // mentions, emotes, etc
+                    !x.Contains('<', StringComparison.InvariantCultureIgnoreCase) && // mentions, emotes, etc
                     !lines.Any(y => y.DamerauLevenshteinDistanceTo(x) < 10) && // Dupe checking
                     !x.Contains("http", StringComparison.InvariantCultureIgnoreCase) && // Links
                     x.Length >= 25) ?? string.Empty;
@@ -217,8 +217,12 @@ namespace InkyBot.Commands
                 foreach (var message in channelMessages)
                 {
                     if (message.MessageType != MessageType.Default &&
-                        message.MessageType != MessageType.Reply ||
-                        databaseContext.MessageItems.Find(message.Id) != null)
+                        message.MessageType != MessageType.Reply)
+                    {
+                        return;
+                    }
+
+                    if (databaseContext.MessageItems.Find(message.Id) != null)
                     {
                         return;
                     }

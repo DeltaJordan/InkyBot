@@ -4,10 +4,10 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using InkyBot.Algorithms.Gibberish;
 using InkyBot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -96,11 +96,29 @@ namespace InkyBot
             interactivity = Client.UseInteractivity(new InteractivityConfiguration { });
 
             Client.MessageCreated += Client_MessageCreatedAsync;
+            Client.MessageCreated += Client_HandleKeySmashAsync;
             Client.MessageUpdated += Client_MessageUpdatedAsync;
 
             await Client.ConnectAsync().SafeAsync();
 
             await Task.Delay(-1).SafeAsync();
+        }
+
+        private static async Task Client_HandleKeySmashAsync(DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs e)
+        {
+            if (e.Guild.Id == 254091452559130626)
+            {
+#if DEBUG
+                if (e.Author.Id != Client.CurrentApplication.Owners.First().Id)
+                {
+                    return;
+                }
+#endif
+                if (Gibberish.Classify(e.Message.Content) > 0.75)
+                {
+                    await e.Message.RespondAsync("Yup.").SafeAsync();
+                }
+            }
         }
 
         private static async Task Client_MessageUpdatedAsync(DiscordClient sender, DSharpPlus.EventArgs.MessageUpdateEventArgs e)
