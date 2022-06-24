@@ -109,15 +109,20 @@ namespace InkyBot
         {
             if (e.Guild.Id == 254091452559130626)
             {
+                if (e.Message.Content.Length < 10)
+                {
+                    return;
+                }
+
 #if DEBUG
                 if (e.Author.Id != Client.CurrentApplication.Owners.First().Id)
                 {
                     return;
                 }
 #endif
-                if (true)
+                if (Gibberish.Classify(e.Message.Content) > 80)
                 {
-                    await e.Message.RespondAsync(Gibberish.Classify(e.Message.Content).ToString()).SafeAsync();
+                    await e.Message.RespondAsync("y").SafeAsync();
                 }
             }
         }
