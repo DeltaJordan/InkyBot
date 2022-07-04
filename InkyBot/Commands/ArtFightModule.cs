@@ -25,7 +25,12 @@ namespace InkyBot.Commands
                 DiscordEmbedBuilder embedBuilder = new();
                 embedBuilder.Title = $"Art Fight {DateTime.Now.Year}";
                 embedBuilder.Description = $"{teamA} vs. {teamB}";
-                embedBuilder.Thumbnail.Url = "https://artfight.net/images/logo40.png";
+                embedBuilder.Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = "https://artfight.net/images/logo40.png",
+                    Width = 40,
+                    Height = 40
+                };
                 embedBuilder.AddField($"__**Team {teamA}**__", "", true);
                 embedBuilder.AddField($"__**Team {teamB}**__", "", true);
                 embedBuilder.Timestamp = DateTime.Now;
@@ -148,7 +153,12 @@ namespace InkyBot.Commands
             DiscordEmbedBuilder embedBuilder = new();
             embedBuilder.Title = $"Art Fight {DateTime.Now.Year}";
             embedBuilder.Description = $"{teamA} vs. {teamB}";
-            embedBuilder.Thumbnail.Url = "https://artfight.net/images/logo40.png";
+            embedBuilder.Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            {
+                Url = "https://artfight.net/images/logo40.png",
+                Width = 40,
+                Height = 40
+            };
 
             string prettyTeamA = string.Join('\n', artFightMembers.Values.Where(x => x.Team == teamA).Select(x => $"[<@{x.DiscordId}>'s Profile]({x.ProfileLink})"));
             embedBuilder.AddField($"__**Team {teamA}**__", prettyTeamA, true);
