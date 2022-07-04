@@ -3,31 +3,41 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using InkyBot.Commands.Data;
 using Newtonsoft.Json;
+using NLog;
 
 namespace InkyBot.Commands
 {
     [Group("af"), RequireOwner]
     public class ArtFightModule : BaseCommandModule
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         [Command("init")]
         public async Task InitializeArtFightEmbedAsync(CommandContext ctx, string teamA, string teamB)
         {
-            Dictionary<ulong, ArtFightMember> artFightMembers = new();
+            try
+            {
+                Dictionary<ulong, ArtFightMember> artFightMembers = new();
 
-            File.WriteAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"), JsonConvert.SerializeObject(artFightMembers));
-            File.WriteAllText(Path.Combine(Globals.AppPath, $"artfightteams{DateTime.Now.Year}.dat"), $"{teamA}\n{teamB}");
+                File.WriteAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"), JsonConvert.SerializeObject(artFightMembers));
+                File.WriteAllText(Path.Combine(Globals.AppPath, $"artfightteams{DateTime.Now.Year}.dat"), $"{teamA}\n{teamB}");
 
-            DiscordEmbedBuilder embedBuilder = new();
-            embedBuilder.Title = $"Art Fight {DateTime.Now.Year}";
-            embedBuilder.Description = $"{teamA} vs. {teamB}";
-            embedBuilder.Thumbnail.Url = "https://artfight.net/images/logo40.png";
-            embedBuilder.AddField($"__**Team {teamA}**__", "", true);
-            embedBuilder.AddField($"__**Team {teamB}**__", "", true);
-            embedBuilder.Timestamp = DateTime.Now;
+                DiscordEmbedBuilder embedBuilder = new();
+                embedBuilder.Title = $"Art Fight {DateTime.Now.Year}";
+                embedBuilder.Description = $"{teamA} vs. {teamB}";
+                embedBuilder.Thumbnail.Url = "https://artfight.net/images/logo40.png";
+                embedBuilder.AddField($"__**Team {teamA}**__", "", true);
+                embedBuilder.AddField($"__**Team {teamB}**__", "", true);
+                embedBuilder.Timestamp = DateTime.Now;
 
-            DiscordMessage message = await ctx.Channel.SendMessageAsync(embed: embedBuilder.Build()).SafeAsync();
+                DiscordMessage message = await ctx.Channel.SendMessageAsync(embed: embedBuilder.Build()).SafeAsync();
 
-            File.WriteAllText(Path.Combine(Globals.AppPath, $"artfightmessage{DateTime.Now.Year}.dat"), $"{message.Id}");
+                File.WriteAllText(Path.Combine(Globals.AppPath, $"artfightmessage{DateTime.Now.Year}.dat"), $"{message.Id}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         [Command("put")]
