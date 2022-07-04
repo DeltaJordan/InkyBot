@@ -94,7 +94,7 @@ namespace InkyBot.Commands
                 string teamA = teams[0];
                 string teamB = teams[1];
 
-                foreach (string line in contents.Split('\n').Skip(1))
+                foreach (string line in contents.Split('\n'))
                 {
                     string[] args = line.Split(' ');
                     ulong id = ulong.Parse(args[0]);
