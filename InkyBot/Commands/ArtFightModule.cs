@@ -31,8 +31,8 @@ namespace InkyBot.Commands
                     Width = 40,
                     Height = 40
                 };
-                embedBuilder.AddField($"__**Team {teamA}**__", "", true);
-                embedBuilder.AddField($"__**Team {teamB}**__", "", true);
+                embedBuilder.AddField($"__**Team {teamA}**__", "empty", true);
+                embedBuilder.AddField($"__**Team {teamB}**__", "empty", true);
                 embedBuilder.Timestamp = DateTime.Now;
 
                 DiscordMessage message = await ctx.Channel.SendMessageAsync(embed: embedBuilder.Build()).SafeAsync();
