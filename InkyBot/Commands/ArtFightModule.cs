@@ -168,9 +168,11 @@ namespace InkyBot.Commands
             };
 
             string prettyTeamA = string.Join('\n', artFightMembers.Values.Where(x => x.Team == teamA).Select(x => $"[<@{x.DiscordId}>'s Profile]({x.ProfileLink})"));
+            prettyTeamA = string.IsNullOrWhiteSpace(prettyTeamA) ? "empty" : prettyTeamA;
             embedBuilder.AddField($"__**Team {teamA}**__", prettyTeamA, true);
 
             string prettyTeamB = string.Join('\n', artFightMembers.Values.Where(x => x.Team == teamB).Select(x => $"[<@{x.DiscordId}>'s Profile]({x.ProfileLink})"));
+            prettyTeamB = string.IsNullOrWhiteSpace(prettyTeamB) ? "empty" : prettyTeamB;
             embedBuilder.AddField($"__**Team {teamB}**__", prettyTeamB, true);
 
             embedBuilder.Timestamp = DateTime.Now;
