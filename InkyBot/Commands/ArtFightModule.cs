@@ -85,47 +85,54 @@ namespace InkyBot.Commands
         [Command("putbatch")]
         public async Task PutBatchMembersAsync(CommandContext ctx, [RemainingText] string contents)
         {
-            string artFightJson = File.ReadAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"));
-            Dictionary<ulong, ArtFightMember> artFightMembers = JsonConvert.DeserializeObject<Dictionary<ulong, ArtFightMember>>(artFightJson);
-
-            string[] teams = File.ReadAllLines(Path.Combine(Globals.AppPath, $"artfightteams{DateTime.Now.Year}.dat"));
-            string teamA = teams[0];
-            string teamB = teams[1];
-
-            foreach (string line in contents.Split('\n').Skip(1))
+            try
             {
-                string[] args = line.Split(' ');
-                ulong id = ulong.Parse(args[0]);
-                string team = args[1];
-                string link = args[2];
+                string artFightJson = File.ReadAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"));
+                Dictionary<ulong, ArtFightMember> artFightMembers = JsonConvert.DeserializeObject<Dictionary<ulong, ArtFightMember>>(artFightJson);
 
-                if (team == "1")
+                string[] teams = File.ReadAllLines(Path.Combine(Globals.AppPath, $"artfightteams{DateTime.Now.Year}.dat"));
+                string teamA = teams[0];
+                string teamB = teams[1];
+
+                foreach (string line in contents.Split('\n').Skip(1))
                 {
-                    team = teamA;
-                }
-                else if (team == "2")
-                {
-                    team = teamB;
-                }
-                else if (team != teamA && team != teamB)
-                {
-                    await ctx.RespondAsync("Invalid team name.").SafeAsync();
-                    return;
+                    string[] args = line.Split(' ');
+                    ulong id = ulong.Parse(args[0]);
+                    string team = args[1];
+                    string link = args[2];
+
+                    if (team == "1")
+                    {
+                        team = teamA;
+                    }
+                    else if (team == "2")
+                    {
+                        team = teamB;
+                    }
+                    else if (team != teamA && team != teamB)
+                    {
+                        await ctx.RespondAsync("Invalid team name.").SafeAsync();
+                        return;
+                    }
+
+                    artFightMembers[id] = new ArtFightMember
+                    {
+                        DiscordId = id,
+                        Team = team,
+                        ProfileLink = link
+                    };
                 }
 
-                artFightMembers[id] = new ArtFightMember
-                {
-                    DiscordId = id,
-                    Team = team,
-                    ProfileLink = link
-                };
+                ulong messageId = ulong.Parse(File.ReadAllText(Path.Combine(Globals.AppPath, $"artfightmessage{DateTime.Now.Year}.dat")));
+                DiscordMessage editMessage = await ctx.Channel.GetMessageAsync(messageId).SafeAsync();
+                await editMessage.ModifyAsync(UpdateEmbed(artFightMembers, teamA, teamB)).SafeAsync();
+
+                File.WriteAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"), JsonConvert.SerializeObject(artFightMembers));
             }
-
-            ulong messageId = ulong.Parse(File.ReadAllText(Path.Combine(Globals.AppPath, $"artfightmessage{DateTime.Now.Year}.dat")));
-            DiscordMessage editMessage = await ctx.Channel.GetMessageAsync(messageId).SafeAsync();
-            await editMessage.ModifyAsync(UpdateEmbed(artFightMembers, teamA, teamB)).SafeAsync();
-
-            File.WriteAllText(Path.Combine(Globals.AppPath, $"artfight{DateTime.Now.Year}.json"), JsonConvert.SerializeObject(artFightMembers));
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         [Command("delete")]
